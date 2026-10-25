@@ -1,0 +1,10 @@
+{
+  "video_id": "example",
+  "duration": 123.4,
+  "model": "mimo-v2.6-flash",
+  "cost_cny": 0.006,
+  "status": "done",
+  "segments": [
+    {"t0": 0.0, "t1": 60.0, "summary": "画面说明", "visual_notes": "00:12 发生了什么"}
+  ]
+}

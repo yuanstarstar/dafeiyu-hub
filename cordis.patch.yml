@@ -1,0 +1,4 @@
+- insert:
+    - id: dafeiyu-hub
+      name: '@local/dafeiyu-hub'
+      config: {}

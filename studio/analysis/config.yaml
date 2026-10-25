@@ -1,0 +1,17 @@
+# 大肥鱼 · 视频解析（独立版）配置
+analyzer:
+  enabled: true
+  prefer: vision              # vision=纯视觉直读（推荐，本包只带这个）；plugin=node 插件（本包不带）
+  llm_model: mimo-v2.6-flash  # 看画面用的多模态模型
+  llm_api_url: https://api.xiaomimimo.com/v1/chat/completions
+  window_s: 60                # 每段多少秒
+  vision_frames: 8            # 每段抽几帧（越多越准越贵）
+  budget_cny: 0.06            # 单条视频预算上限（元）
+  fallback_local: true        # 视觉不可用时退化为亮度/能量分段
+  max_parallel: 1
+  # ffmpeg: "C:/ffmpeg/bin/ffmpeg.exe"   # ffmpeg 不在 PATH 时填这里
+
+llm:
+  api_url: ""                 # 留空=默认小米地址
+  model: ""                   # 留空=用 analyzer.llm_model
+  api_key: ""                 # 建议留空，用环境变量 XIAOMI_API_KEY

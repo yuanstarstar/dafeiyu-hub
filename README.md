@@ -19,7 +19,7 @@ B 站能力走本地 Python 桥（`bridge/bili_bridge.py`），只用标准库�
 在 DSH 里执行（包目录就是本目录）：
 
 ```
-plugin_manager action=install_bundle target=D:\你的项目目录\dafeiyu-hub
+plugin_manager action=install_bundle target=<解压目录>\dafeiyu-hub
 ```
 
 装完刷新 Web GUI。设置页会出现 **大肥鱼**。
@@ -129,16 +129,16 @@ feiyu_studio action=pipeline title="…" text="第一句\n第二句\n…" assetI
 3. PIL 生成 1920×1080 逐段卡片：标题、台词、角色图、水印位；底部留字幕安全区。
 4. ffmpeg 按每段配音时长做静帧 + 缓慢 zoompan，再用 concat **滤镜**重编码成底板，避免 PTS 回跳。
 5. 生成 `timeline.json`：配音起点、字幕切句、音效、BGM ducking、水印。
-6. `D:\你的工作目录\work\edit\build.py` 渲染：ASS 烧字幕、逐句归一、混音、两遍法母带 −14 LUFS / 真峰 ≤ −1 dBTP，并做四道校验。
+6. `<工作目录>\work\edit\build.py` 渲染：ASS 烧字幕、逐句归一、混音、两遍法母带 −14 LUFS / 真峰 ≤ −1 dBTP，并做四道校验。
 7. `build.py` 抽帧 + 额外联系表，产出 `_contact.jpg` 供人工验片。
 
-产物先写到 `D:\你的项目目录\.dafeiyu-studio\`（外部 Python 对 `%USERPROFILE%\.dsh` 没有写权限），完成后由插件复制到 `%USERPROFILE%\.dsh\dafeiyu\studio\output\`；投前预览、清理缓存仍然走原路径。流水线会用 `studio.pipeline.genLine` / `editDir` / `rootDir` / `voice` / `bgm` 配置，默认值在 `config.json`；缺 `soundfile` 时 `build.py` 会明确报错，先在 `bili-duty` venv 里 `uv pip install soundfile`。
+产物先写到项目根目录下的 `.dafeiyu-studio\`（外部 Python 对 `%USERPROFILE%\.dsh` 没有写权限），完成后由插件复制到 `%USERPROFILE%\.dsh\dafeiyu\studio\output\`；投前预览、清理缓存仍然走原路径。流水线会用 `studio.pipeline.genLine` / `editDir` / `rootDir` / `voice` / `bgm` 配置，默认值在 `config.json`；缺 `soundfile` 时 `build.py` 会明确报错，先在 `bili-duty` venv 里 `uv pip install soundfile`。
 
 **素材库（图包）**：总控台 **素材** 页会扫描本地图片，发布包默认只扫状态目录下的 `assets`；在 `config.json` 的 `studio.assetDirs` 里填工作目录后，才会扫那些目录。勾选后点 **用于创作**，创作页的“用素材图”会按场景轮换这些图，不再生成纯色占位图；也可以把单张图 id 传给 `feiyu_studio action=produce` 的 `assetIds`。想加自己的图包目录，改 `%USERPROFILE%\.dsh\dafeiyu\config.json` 里的 `studio.assetDirs`（字符串数组），或在素材页“导入”单张图。扫描会跳过 `trainer/models/node_modules/__pycache__`，深度 2，单图 ≤30MB。
 
-**项目库（manifest）**：总控台新增 **项目** 页。每个项目对应 `D:\你的工作目录\projects\<项目>\manifest.json`，把卡片、立绘、配音、底板、QC、成片和时间轴登记在同一份清单里。默认只给旧 `D:\你的工作目录\work\*` 建“清单 + 空目录”，**不移动、不删除**原文件；清单里的 `legacyPath` 指回旧目录。新项目直接在项目页建，素材可以复制进 `src/cards/vo/base/qc/sfx/bgm` 子目录并自动登记。配置项是 `studio.projectsDir` 和 `studio.legacyWorkDir`（发布包默认是待填占位；第一次使用请改成自己的目录）；`feiyu_library` 支持 `list/project/create/add/materialize/plan/scan`。音效库 `work/research/sfx` 和 BGM 库 `work/research/bgm` 也会在项目页显示数量。
+**项目库（manifest）**：总控台新增 **项目** 页。每个项目对应 `<工作目录>\projects\<项目>\manifest.json`，把卡片、立绘、配音、底板、QC、成片和时间轴登记在同一份清单里。默认只给旧 `<工作目录>\work\*` 建“清单 + 空目录”，**不移动、不删除**原文件；清单里的 `legacyPath` 指回旧目录。新项目直接在项目页建，素材可以复制进 `src/cards/vo/base/qc/sfx/bgm` 子目录并自动登记。配置项是 `studio.projectsDir` 和 `studio.legacyWorkDir`（发布包默认是待填占位；第一次使用请改成自己的目录）；`feiyu_library` 支持 `list/project/create/add/materialize/plan/scan`。音效库 `<工作目录>/research/sfx` 和 BGM 库 `<工作目录>/research/bgm` 也会在项目页显示数量。
 
-**评论/私信带图**：`feiyu_bili` 的 `comment_add`、`dm_send` 支持 `pic` 参数，值可以是素材页的 id，也可以是绝对路径。仍然是写操作：必须有总线程、过权限闸；高度自主下评论/私信可自动发（仍受限额、厌倦、风控和安静时段），严格模式则逐次审批。批准或自动放行后才会用 `bilibili_api` 上传图片，dry-run 只校验图片、不上传。图片上传依赖 `bili-duty/.venv` 里的 `bilibili_api`，没装时桥会明确报错，不会退化成纯文本假装带图。资产计划里的 `TreapGoGo/deepseek-whale-girl` 仓库本机没有副本，当前用本机素材；下载后把目录加进 `studio.assetDirs` 即可。
+**评论/私信带图**：`feiyu_bili` 的 `comment_add`、`dm_send` 支持 `pic` 参数，值可以是素材页的 id，也可以是绝对路径。仍然是写操作：必须有总线程、过权限闸；高度自主下评论/私信可自动发（仍受限额、厌倦、风控和安静时段），严格模式则逐次审批。批准或自动放行后才会用 `bilibili_api` 上传图片，dry-run 只校验图片、不上传。图片上传需要额外安装第三方 `bilibili_api`（`pip install bilibili-api-python`），纯标准库的 `bridge/bili_api` 不包含图片上传；没装时桥会明确报错，不会退化成纯文本假装带图。资产计划里的 `TreapGoGo/deepseek-whale-girl` 仓库本机没有副本，当前用本机素材；下载后把目录加进 `studio.assetDirs` 即可。
 
 AI 声明默认开启；上传脚本会在简介里补“本视频由 AI 辅助生成并发布”。不想发就点拒绝，不要用“测试”绕过去。
 

@@ -62,6 +62,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--frames", type=int, help="每段抽几帧（默认 config 里的 vision_frames，通常 8）")
     ap.add_argument("--model", help="覆盖模型名，例如 mimo-v2.6-flash")
     ap.add_argument("--prefer", choices=["vision", "auto"], help="vision=纯视觉直读（默认）")
+    ap.add_argument("--level", choices=["l0", "l1", "l2"], help="分析层级：l0 轻量 / l1 默认 / l2 加时间窗证据")
     ap.add_argument("--budget", type=float, help="单条视频预算上限（元）")
     ap.add_argument("--id", help="自定义视频 id（默认用文件名；影响缓存路径）")
     ap.add_argument("--fresh", action="store_true", help="忽略缓存，强制重新分析")
@@ -80,6 +81,8 @@ def main(argv: list[str] | None = None) -> int:
         a["llm_model"] = args.model
     if args.prefer:
         a["prefer"] = args.prefer
+    if args.level:
+        a["level"] = args.level
     if args.budget is not None:
         a["budget_cny"] = float(args.budget)
 

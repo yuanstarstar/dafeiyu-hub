@@ -15,7 +15,7 @@
 
 设计取舍
 --------
-1. **不重写 HTTP / WBI / 登录**：`sys.path` 挂上 `D:\\bilibili\\bili-live-kit`，
+1. **不重写 HTTP / WBI / 登录**：`sys.path` 挂上包内 `bridge/bili_api`，
    复用 `bili_api.BiliClient`（cookie 罐、buvid3 指纹、WBI 签名、-352 退避都在里面）。
    本文件只做「动作分发 + 字段裁剪 + 错误翻译」。
 2. **读动作全部实测过**（见 README.md 的状态表），写动作只有参数校验和 dry-run，
@@ -48,7 +48,7 @@ BRIDGE_FILE = Path(__file__).resolve()
 BRIDGE_DIR = BRIDGE_FILE.parent
 
 # ---------------------------------------------------------------- 复用既有资产
-KIT_DIR = r"D:\你的项目目录\bili-live-kit"
+KIT_DIR = str(BRIDGE_DIR)
 if KIT_DIR not in sys.path:
     sys.path.insert(0, KIT_DIR)
 
